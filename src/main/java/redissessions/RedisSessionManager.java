@@ -53,7 +53,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
 
   protected static String name = "RedisSessionManager";
 
-  protected String serializationStrategyClass = "com.orangefunction.tomcat.redissessions.JavaSerializer";
+  protected String serializationStrategyClass = "redissessions.JavaSerializer";
 
   protected EnumSet<SessionPersistPolicy> sessionPersistPoliciesSet = EnumSet.of(SessionPersistPolicy.DEFAULT);
 
@@ -696,7 +696,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
   private void initializeSerializer() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
     log.info("Attempting to use serializer :" + serializationStrategyClass);
     serializer = (Serializer) Class.forName(serializationStrategyClass).newInstance();
-    serializer.setClassLoader(getContainer().getParentClassLoader());
+    serializer.setClassLoader(ClassLoader.getSystemClassLoader());
   }
 
 
