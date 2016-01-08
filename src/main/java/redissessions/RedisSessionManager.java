@@ -696,7 +696,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
   private void initializeSerializer() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
     log.info("Attempting to use serializer :" + serializationStrategyClass);
     serializer = (Serializer) Class.forName(serializationStrategyClass).newInstance();
-    serializer.setClassLoader(getContext().getParentClassLoader());
+    serializer.setClassLoader(getContext().getLoader().getClassLoader());
   }
 
 
