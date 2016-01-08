@@ -62,7 +62,6 @@ public class JavaSerializer implements Serializer {
   }
 
   public void deserializeInto(byte[] data, RedisSession session, SessionSerializationMetadata metadata) throws IOException, ClassNotFoundException {
-
     BufferedInputStream bis = new BufferedInputStream(new ByteArrayInputStream(data));
     ObjectInputStream ois = new CustomObjectInputStream(bis, loader);
 

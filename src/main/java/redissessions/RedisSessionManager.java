@@ -254,7 +254,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     setState(LifecycleState.STARTING);
 
     Boolean attachedToValve = false;
-    for (Valve valve : getContainer().getPipeline().getValves()) {
+    for (Valve valve : getContext().getPipeline().getValves()) {
       if (valve instanceof RedisSessionHandlerValve) {
         this.handlerValve = (RedisSessionHandlerValve) valve;
         this.handlerValve.setRedisSessionManager(this);
@@ -503,7 +503,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
   }
 
   public DeserializedSessionContainer sessionFromSerializedData(String id, byte[] data) throws IOException {
-    log.trace("Deserializing session " + id + " from Redis");
+    log.error("Deserializing session " + id + " from Redis");
 
     if (Arrays.equals(NULL_SESSION, data)) {
       log.error("Encountered serialized session " + id + " with data equal to NULL_SESSION. This is a bug.");
@@ -696,7 +696,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
   private void initializeSerializer() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
     log.info("Attempting to use serializer :" + serializationStrategyClass);
     serializer = (Serializer) Class.forName(serializationStrategyClass).newInstance();
-    serializer.setClassLoader(ClassLoader.getSystemClassLoader());
+    serializer.setClassLoader(getContext().getParentClassLoader());
   }
 
 
