@@ -503,7 +503,6 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
   }
 
   public DeserializedSessionContainer sessionFromSerializedData(String id, byte[] data) throws IOException {
-    log.error("Deserializing session " + id + " from Redis");
 
     if (Arrays.equals(NULL_SESSION, data)) {
       log.error("Encountered serialized session " + id + " with data equal to NULL_SESSION. This is a bug.");
