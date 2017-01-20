@@ -1,7 +1,9 @@
 package com.orangefunction.tomcat.redissessions;
 
-import java.io.*;
 
+import java.io.IOException;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 
 public class SessionSerializationMetadata implements Serializable {
 

@@ -1,17 +1,20 @@
 package com.orangefunction.tomcat.redissessions;
 
 import org.apache.catalina.util.CustomObjectInputStream;
-
-import javax.servlet.http.HttpSession;
-
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.io.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Enumeration;
+import java.util.HashMap;
 
 public class JavaSerializer implements Serializer {
   private ClassLoader loader;
