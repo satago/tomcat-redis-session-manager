@@ -47,6 +47,8 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
 
   private final Log log = LogFactory.getLog(RedisSessionManager.class);
 
+  private boolean enabled = true;
+
   protected String host = "localhost";
   protected int port = 6379;
   protected int database = 0;
@@ -70,6 +72,14 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
   protected String serializationStrategyClass = "com.orangefunction.tomcat.redissessions.JavaSerializer";
 
   protected EnumSet<SessionPersistPolicy> sessionPersistPoliciesSet = EnumSet.of(SessionPersistPolicy.DEFAULT);
+
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
 
   public String getHost() {
     return host;
@@ -262,6 +272,13 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
 
     setState(LifecycleState.STARTING);
 
+    if (!isEnabled()) {
+      return;
+    }
+
+    log.info("Redis host: " + getHost());
+    log.info("Redis port: " + getPort());
+
     Boolean attachedToValve = false;
     for (Valve valve : getContext().getPipeline().getValves()) {
       if (valve instanceof RedisSessionHandlerValve) {
@@ -314,7 +331,9 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     setState(LifecycleState.STOPPING);
 
     try {
-      connectionPool.destroy();
+      if (connectionPool != null) {
+        connectionPool.destroy();
+      }
     } catch(Exception e) {
       // Do nothing.
     }
@@ -325,6 +344,10 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
 
   @Override
   public Session createSession(String requestedSessionId) {
+    if (!isEnabled()) {
+      return super.createSession(requestedSessionId);
+    }
+
     RedisSession session = null;
     String sessionId = null;
     String jvmRoute = getJvmRoute();
@@ -398,11 +421,20 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
 
   @Override
   public Session createEmptySession() {
+    if (!isEnabled()) {
+      return super.createEmptySession();
+    }
+
     return new RedisSession(this);
   }
 
   @Override
   public void add(Session session) {
+    if (!isEnabled()) {
+      super.add(session);
+      return;
+    }
+
     try {
       save(session);
     } catch (IOException ex) {
@@ -413,6 +445,10 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
 
   @Override
   public Session findSession(String id) throws IOException {
+    if (!isEnabled()) {
+      return super.findSession(id);
+    }
+
     RedisSession session = null;
 
     if (null == id) {
@@ -632,11 +668,21 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
 
   @Override
   public void remove(Session session) {
+    if (!isEnabled()) {
+      super.remove(session);
+      return;
+    }
+
     remove(session, false);
   }
 
   @Override
   public void remove(Session session, boolean update) {
+    if (!isEnabled()) {
+      super.remove(session, update);
+      return;
+    }
+
     Jedis jedis = null;
     Boolean error = true;
 
@@ -654,6 +700,10 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
   }
 
   public void afterRequest() {
+    if (!isEnabled()) {
+      return;
+    }
+
     RedisSession redisSession = currentSession.get();
     if (redisSession != null) {
       try {
@@ -677,6 +727,11 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
 
   @Override
   public void processExpires() {
+    if (!isEnabled()) {
+      super.processExpires();
+      return;
+    }
+
     // We are going to use Redis's ability to expire keys for session expiration.
 
     // Do nothing.
