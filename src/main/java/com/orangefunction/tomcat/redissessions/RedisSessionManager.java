@@ -3,30 +3,27 @@ package com.orangefunction.tomcat.redissessions;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
-import org.apache.catalina.util.LifecycleSupport;
 import org.apache.catalina.LifecycleState;
 import org.apache.catalina.Loader;
-import org.apache.catalina.Valve;
 import org.apache.catalina.Session;
+import org.apache.catalina.Valve;
 import org.apache.catalina.session.ManagerBase;
-
-import redis.clients.util.Pool;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisSentinelPool;
-import redis.clients.jedis.JedisPoolConfig;
+import org.apache.juli.logging.Log;
+import org.apache.juli.logging.LogFactory;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.JedisSentinelPool;
 import redis.clients.jedis.Protocol;
+import redis.clients.util.Pool;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Set;
 import java.util.EnumSet;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
-
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
+import java.util.Set;
 
 
 public class RedisSessionManager extends ManagerBase implements Lifecycle {
@@ -73,11 +70,6 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
   protected String serializationStrategyClass = "com.orangefunction.tomcat.redissessions.JavaSerializer";
 
   protected EnumSet<SessionPersistPolicy> sessionPersistPoliciesSet = EnumSet.of(SessionPersistPolicy.DEFAULT);
-
-  /**
-   * The lifecycle event support for this component.
-   */
-  protected LifecycleSupport lifecycle = new LifecycleSupport(this);
 
   public String getHost() {
     return host;
@@ -234,7 +226,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
    */
   @Override
   public void addLifecycleListener(LifecycleListener listener) {
-    lifecycle.addLifecycleListener(listener);
+    getContext().addLifecycleListener(listener);
   }
 
   /**
@@ -243,7 +235,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
    */
   @Override
   public LifecycleListener[] findLifecycleListeners() {
-    return lifecycle.findLifecycleListeners();
+    return getContext().findLifecycleListeners();
   }
 
 
@@ -254,7 +246,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
    */
   @Override
   public void removeLifecycleListener(LifecycleListener listener) {
-    lifecycle.removeLifecycleListener(listener);
+    getContext().removeLifecycleListener(listener);
   }
 
   /**
@@ -271,7 +263,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     setState(LifecycleState.STARTING);
 
     Boolean attachedToValve = false;
-    for (Valve valve : getContainer().getPipeline().getValves()) {
+    for (Valve valve : getContext().getPipeline().getValves()) {
       if (valve instanceof RedisSessionHandlerValve) {
         this.handlerValve = (RedisSessionHandlerValve) valve;
         this.handlerValve.setRedisSessionManager(this);
@@ -300,11 +292,9 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
       throw new LifecycleException(e);
     }
 
-    log.info("Will expire sessions after " + getMaxInactiveInterval() + " seconds");
+    log.info("Will expire sessions after " + getContext().getSessionTimeout() + " seconds");
 
     initializeDatabaseConnection();
-
-    setDistributable(true);
   }
 
 
@@ -369,7 +359,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
         session.setNew(true);
         session.setValid(true);
         session.setCreationTime(System.currentTimeMillis());
-        session.setMaxInactiveInterval(getMaxInactiveInterval());
+        session.setMaxInactiveInterval(getContext().getSessionTimeout());
         session.setId(sessionId);
         session.tellNew();
       }
@@ -537,7 +527,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
 
       session.setId(id);
       session.setNew(false);
-      session.setMaxInactiveInterval(getMaxInactiveInterval());
+      session.setMaxInactiveInterval(getContext().getSessionTimeout());
       session.access();
       session.setValid(true);
       session.resetDirtyTracking();
@@ -625,8 +615,8 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
         log.trace("Save was determined to be unnecessary");
       }
 
-      log.trace("Setting expire timeout on session [" + redisSession.getId() + "] to " + getMaxInactiveInterval());
-      jedis.expire(binaryId, getMaxInactiveInterval());
+      log.trace("Setting expire timeout on session [" + redisSession.getId() + "] to " + getContext().getSessionTimeout());
+      jedis.expire(binaryId, getContext().getSessionTimeout());
 
       error = false;
 
