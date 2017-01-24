@@ -24,6 +24,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 
 public class RedisSessionManager extends ManagerBase implements Lifecycle {
@@ -309,11 +310,14 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
       throw new LifecycleException(e);
     }
 
-    log.info("Will expire sessions after " + getContext().getSessionTimeout() + " seconds");
+    log.info("Will expire sessions after " + getSessionTimeoutInSeconds() + " seconds");
 
     initializeDatabaseConnection();
   }
 
+  private int getSessionTimeoutInSeconds() {
+    return (int) TimeUnit.MINUTES.toSeconds(getContext().getSessionTimeout());
+  }
 
   /**
    * Stop this component and implement the requirements
@@ -382,7 +386,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
         session.setNew(true);
         session.setValid(true);
         session.setCreationTime(System.currentTimeMillis());
-        session.setMaxInactiveInterval(getContext().getSessionTimeout());
+        session.setMaxInactiveInterval(getSessionTimeoutInSeconds());
         session.setId(sessionId);
         session.tellNew();
       }
@@ -563,7 +567,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
 
       session.setId(id);
       session.setNew(false);
-      session.setMaxInactiveInterval(getContext().getSessionTimeout());
+      session.setMaxInactiveInterval(getSessionTimeoutInSeconds());
       session.access();
       session.setValid(true);
       session.resetDirtyTracking();
@@ -651,8 +655,9 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
         log.trace("Save was determined to be unnecessary");
       }
 
-      log.trace("Setting expire timeout on session [" + redisSession.getId() + "] to " + getContext().getSessionTimeout());
-      jedis.expire(binaryId, getContext().getSessionTimeout());
+      log.trace("Setting expire timeout on session [" + redisSession.getId() + "] to "
+              + getSessionTimeoutInSeconds() + " seconds");
+      jedis.expire(binaryId, getSessionTimeoutInSeconds());
 
       error = false;
 
