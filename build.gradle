@@ -1,9 +1,15 @@
+plugins {
+  id "com.jfrog.bintray" version "1.3.1"
+}
+
 apply plugin: 'java'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 group = 'com.orangefunction'
 version = '3.0.0-SATAGO'
+description = 'Tomcat Redis Session Manager is a Tomcat extension to store sessions in Redis'
 
 repositories {
   mavenCentral()
@@ -37,55 +43,72 @@ task sourcesJar(type: Jar) {
   classifier = 'sources'
 }
 
-artifacts {
-  archives jar
+jar.dependsOn sourcesJar
+jar.dependsOn javadocJar
 
+artifacts {
   archives javadocJar
   archives sourcesJar
 }
 
-//signing {
-//  sign configurations.archives
-//}
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      artifact sourcesJar
+      artifact javadocJar
 
-uploadArchives {
-  repositories {
-    mavenDeployer {
+      pom.withXml {
+        def root = asNode()
 
-      pom.project {
-        name 'tomcat-redis-session-manager'
-        packaging 'jar'
-        description 'Tomcat Redis Session Manager is a Tomcat extension to store sessions in Redis'
-        url 'https://github.com/jcoleman/tomcat-redis-session-manager'
-
-        issueManagement {
-          url 'https://github.com:jcoleman/tomcat-redis-session-manager/issues'
-          system 'GitHub Issues'
+        def deps = root.children().find {
+          it.name().localPart == 'dependencies'
         }
 
-        scm {
-          url 'https://github.com:jcoleman/tomcat-redis-session-manager'
-          connection 'scm:git:git://github.com/jcoleman/tomcat-redis-session-manager.git'
-          developerConnection 'scm:git:git@github.com:jcoleman/tomcat-redis-session-manager.git'
-        }
+        root.children().remove(deps)
 
-        licenses {
-          license {
-            name 'MIT'
-            url 'http://opensource.org/licenses/MIT'
-            distribution 'repo'
-          }
-        }
+        root.appendNode('description', project.description)
+        root.appendNode('url', 'https://github.com/satago/tomcat-redis-session-manager')
 
-        developers {
-          developer {
-            id 'jcoleman'
-            name 'James Coleman'
-            email 'jtc331@gmail.com'
-            url 'https://github.com/jcoleman'
-          }
+        def license = root.appendNode('licenses').appendNode('license')
+        license.appendNode("name", "MIT")
+        license.appendNode("url", "http://opensource.org/licenses/MIT")
+        license.appendNode("distribution", "repo")
+
+        def developers = root.appendNode("developers")
+
+        def developer = developers.appendNode("developer")
+        developer.appendNode('id', 'jcoleman')
+        developer.appendNode('name', 'James Coleman')
+        developer.appendNode('email', 'jtc331@gmail.com')
+        developer.appendNode('url', 'https://github.com/jcoleman')
+
+        developer = developers.appendNode("developer")
+        developer.appendNode('id', 'dmitrygusev')
+        developer.appendNode('name', 'Dmitry Gusev')
+        developer.appendNode('email', 'dmitry.gusev@gmail.com')
+        developer.appendNode('url', 'https://github.com/dmitrygusev')
+
+        def pom = new XmlParser().parse(project.file("build/poms/pom-default.xml"))
+
+        pom.dependencies.each {
+          root.append(it)
         }
       }
     }
   }
+}
+
+bintray {
+  user = "$bintray_user"
+  key = "$bintray_api_key"
+  publications = ['mavenJava']
+  pkg {
+    repo = 'maven'
+    name = 'tomcat-redis-session-manager'
+    userOrg = 'satago' // an optional organization name when the repo belongs to one of the user's orgs
+    licenses = ['MIT']
+    vcsUrl = 'https://github.com/satago/tomcat-redis-session-manager.git'
+  }
+  dryRun = false // whether to run this as dry-run, without deploying
 }
