@@ -8,7 +8,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 group = 'com.orangefunction'
-version = '3.0.1-SATAGO'
+version = '3.0.2-SATAGO'
 description = 'Tomcat Redis Session Manager is a Tomcat extension to store sessions in Redis'
 
 repositories {
