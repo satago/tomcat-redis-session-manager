@@ -21,7 +21,7 @@ compileJava {
 }
 
 dependencies {
-  compileOnly 'org.apache.tomcat:tomcat-catalina:8.5.11'
+  compileOnly 'org.apache.tomcat:tomcat-catalina:8.5.12'
   compile 'redis.clients:jedis:2.8.0'
   compile 'org.apache.commons:commons-pool2:2.2'
   compile 'commons-codec:commons-codec:1.9'
