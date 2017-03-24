@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 
-public class RedisSessionManager extends ManagerBase implements Lifecycle {
+public class RedisSessionManager extends ManagerBase implements Lifecycle, RedisSessionManagerConfiguration, StandardManagerConfiguration {
 
   enum SessionPersistPolicy {
     DEFAULT,
@@ -76,6 +76,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return host;
   }
 
+  @Override
   public void setHost(String host) {
     this.host = host;
   }
@@ -84,6 +85,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return port;
   }
 
+  @Override
   public void setPort(int port) {
     this.port = port;
   }
@@ -92,6 +94,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return database;
   }
 
+  @Override
   public void setDatabase(int database) {
     this.database = database;
   }
@@ -100,6 +103,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return timeout;
   }
 
+  @Override
   public void setTimeout(int timeout) {
     this.timeout = timeout;
   }
@@ -108,10 +112,12 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return password;
   }
 
+  @Override
   public void setPassword(String password) {
     this.password = password;
   }
 
+  @Override
   public void setSerializationStrategyClass(String strategy) {
     this.serializationStrategyClass = strategy;
   }
@@ -128,6 +134,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return policies.toString();
   }
 
+  @Override
   public void setSessionPersistPolicies(String sessionPersistPolicies) {
     String[] policyArray = sessionPersistPolicies.split(",");
     EnumSet<SessionPersistPolicy> policySet = EnumSet.of(SessionPersistPolicy.DEFAULT);
@@ -157,6 +164,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return sentinels.toString();
   }
 
+  @Override
   public void setSentinels(String sentinels) {
     if (null == sentinels) {
       sentinels = "";
@@ -174,6 +182,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return this.sentinelMaster;
   }
 
+  @Override
   public void setSentinelMaster(String master) {
     this.sentinelMaster = master;
   }
@@ -184,6 +193,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return 0;
   }
 
+  @Override
   public void setRejectedSessions(int i) {
     // Do nothing.
   }
@@ -737,6 +747,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return this.connectionPoolConfig.getMaxTotal();
   }
 
+  @Override
   public void setConnectionPoolMaxTotal(int connectionPoolMaxTotal) {
     this.connectionPoolConfig.setMaxTotal(connectionPoolMaxTotal);
   }
@@ -745,6 +756,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return this.connectionPoolConfig.getMaxIdle();
   }
 
+  @Override
   public void setConnectionPoolMaxIdle(int connectionPoolMaxIdle) {
     this.connectionPoolConfig.setMaxIdle(connectionPoolMaxIdle);
   }
@@ -753,6 +765,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return this.connectionPoolConfig.getMinIdle();
   }
 
+  @Override
   public void setConnectionPoolMinIdle(int connectionPoolMinIdle) {
     this.connectionPoolConfig.setMinIdle(connectionPoolMinIdle);
   }
@@ -763,6 +776,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
   public boolean getLifo() {
     return this.connectionPoolConfig.getLifo();
   }
+  @Override
   public void setLifo(boolean lifo) {
     this.connectionPoolConfig.setLifo(lifo);
   }
@@ -770,6 +784,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return this.connectionPoolConfig.getMaxWaitMillis();
   }
 
+  @Override
   public void setMaxWaitMillis(long maxWaitMillis) {
     this.connectionPoolConfig.setMaxWaitMillis(maxWaitMillis);
   }
@@ -778,6 +793,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return this.connectionPoolConfig.getMinEvictableIdleTimeMillis();
   }
 
+  @Override
   public void setMinEvictableIdleTimeMillis(long minEvictableIdleTimeMillis) {
     this.connectionPoolConfig.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
   }
@@ -786,6 +802,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return this.connectionPoolConfig.getSoftMinEvictableIdleTimeMillis();
   }
 
+  @Override
   public void setSoftMinEvictableIdleTimeMillis(long softMinEvictableIdleTimeMillis) {
     this.connectionPoolConfig.setSoftMinEvictableIdleTimeMillis(softMinEvictableIdleTimeMillis);
   }
@@ -794,6 +811,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return this.connectionPoolConfig.getNumTestsPerEvictionRun();
   }
 
+  @Override
   public void setNumTestsPerEvictionRun(int numTestsPerEvictionRun) {
     this.connectionPoolConfig.setNumTestsPerEvictionRun(numTestsPerEvictionRun);
   }
@@ -802,6 +820,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return this.connectionPoolConfig.getTestOnCreate();
   }
 
+  @Override
   public void setTestOnCreate(boolean testOnCreate) {
     this.connectionPoolConfig.setTestOnCreate(testOnCreate);
   }
@@ -810,6 +829,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return this.connectionPoolConfig.getTestOnBorrow();
   }
 
+  @Override
   public void setTestOnBorrow(boolean testOnBorrow) {
     this.connectionPoolConfig.setTestOnBorrow(testOnBorrow);
   }
@@ -818,6 +838,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return this.connectionPoolConfig.getTestOnReturn();
   }
 
+  @Override
   public void setTestOnReturn(boolean testOnReturn) {
     this.connectionPoolConfig.setTestOnReturn(testOnReturn);
   }
@@ -826,6 +847,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return this.connectionPoolConfig.getTestWhileIdle();
   }
 
+  @Override
   public void setTestWhileIdle(boolean testWhileIdle) {
     this.connectionPoolConfig.setTestWhileIdle(testWhileIdle);
   }
@@ -834,6 +856,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return this.connectionPoolConfig.getTimeBetweenEvictionRunsMillis();
   }
 
+  @Override
   public void setTimeBetweenEvictionRunsMillis(long timeBetweenEvictionRunsMillis) {
     this.connectionPoolConfig.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
   }
@@ -842,6 +865,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return this.connectionPoolConfig.getEvictionPolicyClassName();
   }
 
+  @Override
   public void setEvictionPolicyClassName(String evictionPolicyClassName) {
     this.connectionPoolConfig.setEvictionPolicyClassName(evictionPolicyClassName);
   }
@@ -850,6 +874,7 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return this.connectionPoolConfig.getBlockWhenExhausted();
   }
 
+  @Override
   public void setBlockWhenExhausted(boolean blockWhenExhausted) {
     this.connectionPoolConfig.setBlockWhenExhausted(blockWhenExhausted);
   }
@@ -858,12 +883,14 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return this.connectionPoolConfig.getJmxEnabled();
   }
 
+  @Override
   public void setJmxEnabled(boolean jmxEnabled) {
     this.connectionPoolConfig.setJmxEnabled(jmxEnabled);
   }
   public String getJmxNameBase() {
     return this.connectionPoolConfig.getJmxNameBase();
   }
+  @Override
   public void setJmxNameBase(String jmxNameBase) {
     this.connectionPoolConfig.setJmxNameBase(jmxNameBase);
   }
@@ -872,8 +899,14 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     return this.connectionPoolConfig.getJmxNamePrefix();
   }
 
+  @Override
   public void setJmxNamePrefix(String jmxNamePrefix) {
     this.connectionPoolConfig.setJmxNamePrefix(jmxNamePrefix);
+  }
+
+  @Override
+  public void setPathname(String pathname) {
+    //  Do nothing
   }
 }
 
