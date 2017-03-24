@@ -13,9 +13,14 @@ import java.io.IOException;
 public class RedisSessionHandlerValve extends ValveBase {
   private final Log log = LogFactory.getLog(RedisSessionManager.class);
   private RedisSessionManager manager;
+  private boolean enabled;
 
   public void setRedisSessionManager(RedisSessionManager manager) {
     this.manager = manager;
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
   }
 
   @Override
@@ -23,7 +28,9 @@ public class RedisSessionHandlerValve extends ValveBase {
     try {
       getNext().invoke(request, response);
     } finally {
-      manager.afterRequest();
+      if (enabled) {
+        manager.afterRequest();
+      }
     }
   }
 }
